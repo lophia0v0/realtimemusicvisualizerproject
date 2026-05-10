@@ -1,42 +1,226 @@
-/* style.css */
+:root {
+    --primary-color: #ff00ff; /* Neon Magenta/Pink */
+    --secondary-color: #00ffff; /* Cyan */
+    --bg-dark: #050510;
+    --text-light: #ffffff;
+}
 
-body {
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
     overflow: hidden;
-    background: #000;
-    font-family: Arial, sans-serif;
-}
-
-/* Canvas full màn hình */
-#visualizer {
-    display: block;
-    width: 100vw;
     height: 100vh;
-    background: black;
+    width: 100vw;
 }
 
-/* Nút start ở giữa màn hình */
-#startBtn {
+.background-container {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-
-    border: none;
-    border-radius: 10px;
-
-    background: white;
-    color: black;
-    cursor: pointer;
-
-    transition: 0.3s;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
 }
 
-#startBtn:hover {
-    transform: translate(-50%, -50%) scale(1.05);
+#bg-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Dark overlay to make visuals pop */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+}
+
+#flash-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Cover the whole screen */
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.15) 75%, transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+    mix-blend-mode: screen; /* Blend like stage lights */
+    transition: opacity 0.15s ease-out; /* Slightly smoother fade out */
+}
+
+#particles-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Below the main visualizer */
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+.main-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.visualizer-wrapper {
+    position: relative;
+    width: 100vmin; /* Responsive to the smaller dimension */
+    max-width: 900px;
+    height: 100vmin;
+    max-height: 900px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Make canvas overlay the image exactly */
+#visualizer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    /* Blend mode can enhance the neon look */
+    mix-blend-mode: screen; 
+    /* Removed expensive CSS drop-shadow, moved to Canvas ctx.shadowBlur for performance */
+}
+
+.center-image-container {
+    position: absolute;
+    width: 50%; /* 50% of wrapper width = 450px at max */
+    height: 50%;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+#center-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Pulse animation for the central container's shadow */
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 30px var(--primary-color), 0 0 60px var(--secondary-color);
+    }
+    100% {
+        box-shadow: 0 0 60px var(--primary-color), 0 0 100px var(--secondary-color), 0 0 150px var(--secondary-color);
+    }
+}
+
+.controls {
+    position: absolute;
+    bottom: 40px;
+    display: flex;
+    gap: 20px;
+    z-index: 10;
+}
+
+button {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-light);
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-radius: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+button svg {
+    width: 20px;
+    height: 20px;
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px var(--primary-color);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Intensity Bar */
+.intensity-bar-container {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 10;
+}
+
+.intensity-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.intensity-track {
+    width: 200px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    /* overflow: hidden removed so glow is not clipped */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+}
+
+.intensity-fill {
+    height: 100%;
+    width: 0%;
+    background: #b829ff; /* Neon Violet */
+    border-radius: 5px; /* Added radius here instead of relying on overflow hidden */
+    transition: width 0.05s ease-out;
+    box-shadow: 0 0 10px #b829ff, 0 0 20px #b829ff, 0 0 30px #b829ff; /* Stronger neon glow */
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .controls {
+        bottom: 20px;
+    }
+}
+
+/* Hide controls in fullscreen */
+:fullscreen .controls {
+    display: none !important;
+}
+
+:-webkit-full-screen .controls {
+    display: none !important;
 }

@@ -14,7 +14,7 @@ const pCtx = particlesCanvas ? particlesCanvas.getContext('2d') : null;
 const starColors = ['#ff00ff', '#00ffff', '#ff8c00', '#ffff00', '#00ff00', '#8a2be2'];
 let stars = [];
 const numStars = 150;
-const speedNormal = 10; 
+const speedNormal = 15; 
 let speedCurrent = speedNormal;
 
 // Pre-calculate unit star vertices to save trig calls per frame
@@ -193,7 +193,7 @@ function animate() {
             lastBeatTime = Date.now();
             shakeAmount = 15;
             targetScale = 1.15; 
-            speedCurrent = 80;
+            speedCurrent = 90;
             if(flashOverlay) {
                 flashOverlay.style.opacity = '0.7';
                 setTimeout(() => { flashOverlay.style.opacity = '0'; }, 100);
